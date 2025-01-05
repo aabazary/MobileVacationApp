@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">D308AbazaryTask1</string>
+    <string name="first">first</string>
+    <string name="second" />
 </resources>
