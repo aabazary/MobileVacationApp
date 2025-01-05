@@ -1,33 +1,41 @@
 package com.example.d308abazarytask1.Entities;
 
 import androidx.room.Entity;
+import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
 
 @Entity(tableName = "vacations")
 public class Vacation {
+    public int getVacationID() {
+        return vacationID;
+    }
+
+    public void setVacationID(int vacationID) {
+        this.vacationID = vacationID;
+    }
+
     @PrimaryKey(autoGenerate = true)
-    private int id;
+    private int vacationID;
     private String title;
     private String hotel;
     private String startDate;
     private String endDate;
-    private int excursionID;
 
-    public Vacation(int id, String title, String hotel, String startDate, String endDate, int excursionID) {
-        this.id = id;
+
+    public Vacation(int vacationID, String title, String hotel, String startDate, String endDate) {
+        this.vacationID = vacationID;
         this.title = title;
         this.hotel = hotel;
         this.startDate = startDate;
         this.endDate = endDate;
-        this.excursionID = excursionID;
     }
 
     public int getId() {
-        return id;
+        return vacationID;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setId(int vacationID) {
+        this.vacationID = vacationID;
     }
 
     public String getTitle() {
@@ -62,11 +70,5 @@ public class Vacation {
         this.endDate = endDate;
     }
 
-    public int getExcursionID() {
-        return excursionID;
-    }
 
-    public void setExcursionID(int excursionID) {
-        this.excursionID = excursionID;
-    }
 }

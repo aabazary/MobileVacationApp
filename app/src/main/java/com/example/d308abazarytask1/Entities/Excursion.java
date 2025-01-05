@@ -6,23 +6,27 @@ import androidx.room.PrimaryKey;
 @Entity(tableName = "excursions")
 public class Excursion {
     @PrimaryKey(autoGenerate = true)
-    private int id;
+    private int excursionID;
 
     private String title;
     private String date;
 
-    public Excursion(int id, String title, String date) {
-        this.id = id;
+    private int vacationID;
+
+
+    public Excursion(int excursionID, String title, String date, int vacationID) {
+        this.excursionID = excursionID;
         this.title = title;
         this.date = date;
+        this.vacationID = vacationID;
     }
 
-    public int getId() {
-        return id;
+    public int getExcursionID() {
+        return excursionID;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setExcursionID(int excursionID) {
+        this.excursionID = excursionID;
     }
 
     public String getTitle() {
@@ -39,5 +43,12 @@ public class Excursion {
 
     public void setDate(String date) {
         this.date = date;
+    }
+    public int getVacationID() {
+        return vacationID;
+    }
+
+    public void setVacationID(int vacationID) {
+        this.vacationID = vacationID;
     }
 }

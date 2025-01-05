@@ -23,6 +23,6 @@ public interface VacationDAO {
     @Delete
     void delete(Vacation vacation);
 
-    @Query("SELECT * FROM VACATIONS ORDER BY id ASC")
-    List<Excursion> getAllVacations();
+    @Query("SELECT * FROM vacations ORDER BY vacationID ASC")
+    List<Vacation> getAllVacations();
 }
