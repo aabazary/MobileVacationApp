@@ -8,14 +8,16 @@ import com.example.d308abazarytask1.Entities.Excursion;
 import com.example.d308abazarytask1.Entities.Vacation;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class Repository {
     private ExcursionDAO mExcursionDAO;
     private VacationDAO mVacationDAO;
 
-    private List<Vacation> mAllVactions;
+    private List<Vacation> mAllVacations;
     private List<Excursion> mAllExcursions;
 
     private static int NUMBER_OF_THREADS=4;
@@ -28,9 +30,9 @@ public class Repository {
     }
 
 
-    public List<Vacation>getmAllVactions(){
+    public List<Vacation>getmAllVacations(){
         databaseExecutor.execute(()->{
-            mAllVactions=mVacationDAO.getAllVacations();
+            mAllVacations=mVacationDAO.getAllVacations();
         });
 
         try {
@@ -38,7 +40,7 @@ public class Repository {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        return mAllVactions;
+        return mAllVacations;
     }
 
     public void insert(Vacation vacation){
