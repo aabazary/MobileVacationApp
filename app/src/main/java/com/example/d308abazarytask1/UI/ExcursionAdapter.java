@@ -80,6 +80,12 @@ public class ExcursionAdapter extends RecyclerView.Adapter<ExcursionAdapter.Excu
     public int getItemCount() {
         return mExcursions.size();
     }
+    public void updateExcursion(int position, Excursion updatedExcursion) {
+        mExcursions.set(position, updatedExcursion);
+        notifyItemChanged(position);
+    }
+
+
 }
 
 

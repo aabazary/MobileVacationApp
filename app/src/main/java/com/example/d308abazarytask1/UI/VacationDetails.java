@@ -8,6 +8,8 @@ import android.view.View;
 import android.widget.EditText;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -37,7 +39,10 @@ public class VacationDetails extends AppCompatActivity {
     EditText editEndDate;
 
     Repository repository;
+    private RecyclerView recyclerView;
 
+
+    private ActivityResultLauncher<Intent> excursionLauncher;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,13 +72,26 @@ public class VacationDetails extends AppCompatActivity {
         editStartDate.setText(startDate);
         editEndDate.setText(endDate);
 
+        excursionLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK) {
+                        List<Excursion> filteredExcursion = new ArrayList<>();
+                        for (Excursion e : repository.getAllExcursions()) {
+                            if (e.getVacationID() == vacationId) filteredExcursion.add(e);
+                        }
+                        ((ExcursionAdapter) recyclerView.getAdapter()).setExcursions(filteredExcursion);
+                    }
+                }
+        );
+
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        RecyclerView recyclerView=findViewById(R.id.excursionRecyclerView);
+        recyclerView=findViewById(R.id.excursionRecyclerView);
         repository= new Repository(getApplication());
         final ExcursionAdapter excursionAdapter=new ExcursionAdapter(this);
         recyclerView.setAdapter(excursionAdapter);
@@ -87,11 +105,13 @@ public class VacationDetails extends AppCompatActivity {
         excursionAdapter.setExcursions(filteredExcursion);
         fab.setOnClickListener(new View.OnClickListener(){
 
+
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(VacationDetails.this, ExcursionDetails.class);
-               intent.putExtra("vacID",vacationId);
-                startActivity(intent);
+                intent.putExtra("vacID",vacationId);
+//                startActivity(intent);
+                excursionLauncher.launch(intent);
             }
         });
     }
@@ -124,4 +144,29 @@ public class VacationDetails extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+    private void loadVacationDetails() {
+        Vacation vacation = repository.getVacationById(vacationId);
+        if (vacation != null) {
+            editTitle.setText(vacation.getTitle());
+            editHotel.setText(vacation.getHotel());
+            editStartDate.setText(vacation.getStartDate());
+            editEndDate.setText(vacation.getEndDate());
+        }
+    }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1 && resultCode == RESULT_OK) {
+            loadVacationDetails(); // Reload vacation details (optional if they may change)
+            List<Excursion> filteredExcursion = new ArrayList<>();
+            for (Excursion e : repository.getAllExcursions()) {
+                if (e.getVacationID() == vacationId) filteredExcursion.add(e);
+            }
+            ((ExcursionAdapter) recyclerView.getAdapter()).setExcursions(filteredExcursion);
+        }
+    }
+
+
 }

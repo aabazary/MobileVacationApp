@@ -87,6 +87,16 @@ public class Repository {
         return mAllExcursions;
     }
 
+    public Vacation getVacationById(int id) {
+        for (Vacation vacation : mAllVacations) {
+            if (vacation.getVacationID() == id) {
+                return vacation;
+            }
+        }
+        return null;
+    }
+
+
     public List<Excursion>getAssociatedExcursions(int vacationID){
         databaseExecutor.execute(()->{
             mAllExcursions=mExcursionDAO.getAssociatedExcursions(vacationID);
