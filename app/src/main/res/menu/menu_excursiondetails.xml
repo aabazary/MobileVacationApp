@@ -2,6 +2,8 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:title="Save Excursion"
         android:id="@+id/excursionsave"/>
+    <item android:title="Delete Excursion"
+        android:id="@+id/excursiondelete"/>
     <item android:title="Notify"
         android:orderInCategory="100"
         android:id="@+id/notify"/>

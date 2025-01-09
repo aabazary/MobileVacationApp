@@ -23,6 +23,9 @@ public interface VacationDAO {
     @Delete
     void delete(Vacation vacation);
 
+    @Query("DELETE FROM vacations WHERE vacationID = :vacationID")
+    void deleteById(int vacationID);
+
     @Query("SELECT * FROM vacations ORDER BY vacationID ASC")
     List<Vacation> getAllVacations();
 }

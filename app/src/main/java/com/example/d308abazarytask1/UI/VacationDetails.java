@@ -7,6 +7,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
@@ -29,6 +30,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class VacationDetails extends AppCompatActivity {
 
@@ -49,6 +52,7 @@ public class VacationDetails extends AppCompatActivity {
     private SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
 
     private ActivityResultLauncher<Intent> excursionLauncher;
+    private ExcursionAdapter excursionAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,10 +105,11 @@ public class VacationDetails extends AppCompatActivity {
         });
         recyclerView = findViewById(R.id.excursionRecyclerView);
         repository = new Repository(getApplication());
-        final ExcursionAdapter excursionAdapter = new ExcursionAdapter(this);
+        excursionAdapter = new ExcursionAdapter(this);
         recyclerView.setAdapter(excursionAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
+        loadExcursions();
         List<Excursion> filteredExcursion = new ArrayList<>();
         for (Excursion e : repository.getAllExcursions()) {
             if (e.getVacationID() == vacationId) filteredExcursion.add(e);
@@ -151,12 +156,37 @@ public class VacationDetails extends AppCompatActivity {
             this.finish();
 
             return true;
-        } else if (item.getItemId() == android.R.id.home) {
+        }if (item.getItemId() == R.id.vacationdelete) {
+            List<Excursion> associatedExcursions = repository.getAssociatedExcursions(vacationId);
+
+            if (!associatedExcursions.isEmpty()) {
+
+                Toast.makeText(this, "Cannot delete vacation with associated excursions!", Toast.LENGTH_LONG).show();
+            } else {
+
+                ExecutorService executor = Executors.newSingleThreadExecutor();
+                executor.execute(() -> {
+                    repository.deleteVacationById(vacationId);
+                    runOnUiThread(() -> {
+                        Toast.makeText(this, "Vacation deleted successfully!", Toast.LENGTH_SHORT).show();
+                        this.finish();
+                    });
+                });
+            }
+            return true;
+        }
+
+        if (item.getItemId() == android.R.id.home) {
             finish();
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
+
+    private void showMessage(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
 
     private void loadVacationDetails() {
         Vacation vacation = repository.getVacationById(vacationId);
@@ -180,4 +210,17 @@ public class VacationDetails extends AppCompatActivity {
             ((ExcursionAdapter) recyclerView.getAdapter()).setExcursions(filteredExcursion);
         }
     }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadExcursions();
+    }
+
+    private void loadExcursions() {
+        List<Excursion> updatedExcursions = repository.getAssociatedExcursions(vacationId);
+        excursionAdapter.setExcursions(updatedExcursions);
+    }
+
+
+
 }

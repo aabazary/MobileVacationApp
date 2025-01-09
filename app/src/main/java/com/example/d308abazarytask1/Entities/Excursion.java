@@ -51,4 +51,8 @@ public class Excursion {
     public void setVacationID(int vacationID) {
         this.vacationID = vacationID;
     }
+    @Override
+    public String toString() {
+        return this.getTitle();
+    }
 }

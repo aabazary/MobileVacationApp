@@ -73,6 +73,9 @@ public class Repository {
             e.printStackTrace();
         }
     }
+    public void deleteExcursionById(int excursionID) {
+        mExcursionDAO.deleteById(excursionID);
+    }
 
     public List<Excursion>getAllExcursions(){
         databaseExecutor.execute(()->{
@@ -141,5 +144,7 @@ public class Repository {
     }
 
 
-
+    public void deleteVacationById(int vacationId) {
+        mVacationDAO.deleteById(vacationId);
+    }
 }

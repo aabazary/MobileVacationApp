@@ -139,6 +139,19 @@ public class ExcursionDetails extends AppCompatActivity {
             this.finish();
             return true;
         }
+        if (item.getItemId() == R.id.excursiondelete) {
+            new Thread(() -> {
+                repository.deleteExcursionById(excursionID);
+                runOnUiThread(() -> {
+                    Intent resultIntent = new Intent();
+                    setResult(RESULT_OK, resultIntent);
+                    this.finish();
+                });
+            }).start();
+            return true;
+        }
+
+
 
         if (item.getItemId() == R.id.notify) {
             String dateFromScreen = editDate.getText().toString();
