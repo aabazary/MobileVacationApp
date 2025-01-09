@@ -66,16 +66,12 @@ public class ExcursionDetails extends AppCompatActivity {
         }
         editDate.setText(sdf.format(myCalendarStart.getTime()));
 
-        String myFormat = "MM/dd/yy"; //In which you need put here
-        SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
-
         ArrayList<Vacation> vacationArrayList = new ArrayList<>();
         vacationArrayList.addAll(repository.getmAllVacations());
         ArrayList<Integer> vacationIdList = new ArrayList<>();
         for (Vacation vacation : vacationArrayList) {
             vacationIdList.add(vacation.getVacationID());
         }
-        ArrayAdapter<Integer> vacationIdAdapter = new ArrayAdapter<Integer>(this, android.R.layout.simple_spinner_item, vacationIdList);
 
         startDate = new DatePickerDialog.OnDateSetListener() {
 

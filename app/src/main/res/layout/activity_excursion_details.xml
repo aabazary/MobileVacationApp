@@ -70,7 +70,7 @@
                 android:layout_gravity="center_vertical"
                 android:src="@drawable/baseline_calendar_month_24"
                 android:contentDescription="@string/calendar_icon"
-                android:tint="@android:color/white" />
+                app:tint="@android:color/white" />
         </LinearLayout>
         </androidx.appcompat.widget.LinearLayoutCompat>
 
