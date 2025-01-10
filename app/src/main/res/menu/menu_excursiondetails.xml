@@ -4,8 +4,7 @@
         android:id="@+id/excursionsave"/>
     <item android:title="Delete Excursion"
         android:id="@+id/excursiondelete"/>
-    <item android:title="Notify"
+    <item android:title="Set Alert"
         android:orderInCategory="100"
-        android:id="@+id/notify"/>
-
+        android:id="@+id/setexcursionalert"/>
 </menu>
