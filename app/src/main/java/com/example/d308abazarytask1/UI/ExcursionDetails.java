@@ -123,25 +123,32 @@ public class ExcursionDetails extends AppCompatActivity {
         }
 
         if (item.getItemId() == R.id.excursionsave) {
+            // Validate excursion date before saving
+            if (!isDateWithinVacationRange()) {
+                Toast.makeText(this, "Excursion date must be within the vacation period.", Toast.LENGTH_LONG).show();
+                return false;
+            }
+
             Excursion excursion;
             if (excursionID == -1) {
-                if (repository.getAllExcursions().size() == 0)
+                if (repository.getAllExcursions().isEmpty())
                     excursionID = 1;
                 else
                     excursionID = repository.getAllExcursions().get(repository.getAllExcursions().size() - 1).getExcursionID() + 1;
+
                 excursion = new Excursion(excursionID, editTitle.getText().toString(), editDate.getText().toString(), vacationID);
                 repository.insert(excursion);
             } else {
                 excursion = new Excursion(excursionID, editTitle.getText().toString(), editDate.getText().toString(), vacationID);
                 repository.update(excursion);
             }
-            Excursion updatedExcursion = new Excursion(excursionID, editTitle.getText().toString(), editDate.getText().toString(), vacationID);
+
             Intent resultIntent = new Intent();
-            resultIntent.putExtra("updatedExcursion", (CharSequence) updatedExcursion);
             setResult(RESULT_OK, resultIntent);
             this.finish();
             return true;
         }
+
         if (item.getItemId() == R.id.excursiondelete) {
             new Thread(() -> {
                 repository.deleteExcursionById(excursionID);
@@ -202,6 +209,25 @@ public class ExcursionDetails extends AppCompatActivity {
 
 
         return super.onOptionsItemSelected(item);
+    }
+    private boolean isDateWithinVacationRange() {
+        String excursionDateStr = editDate.getText().toString();
+        try {
+            Date excursionDate = sdf.parse(excursionDateStr);
+
+            // Fetch vacation details from the repository
+            Vacation vacation = repository.getVacationById(vacationID);
+            if (vacation != null) {
+                Date vacationStartDate = sdf.parse(vacation.getStartDate());
+                Date vacationEndDate = sdf.parse(vacation.getEndDate());
+
+                // Check if the excursion date falls within the vacation range
+                return excursionDate != null && excursionDate.compareTo(vacationStartDate) >= 0 && excursionDate.compareTo(vacationEndDate) <= 0;
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
 }
