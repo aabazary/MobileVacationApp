@@ -215,13 +215,11 @@ public class ExcursionDetails extends AppCompatActivity {
         try {
             Date excursionDate = sdf.parse(excursionDateStr);
 
-            // Fetch vacation details from the repository
             Vacation vacation = repository.getVacationById(vacationID);
             if (vacation != null) {
                 Date vacationStartDate = sdf.parse(vacation.getStartDate());
                 Date vacationEndDate = sdf.parse(vacation.getEndDate());
 
-                // Check if the excursion date falls within the vacation range
                 return excursionDate != null && excursionDate.compareTo(vacationStartDate) >= 0 && excursionDate.compareTo(vacationEndDate) <= 0;
             }
         } catch (ParseException e) {
