@@ -11,7 +11,6 @@ import android.provider.Settings;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -123,93 +122,107 @@ public class ExcursionDetails extends AppCompatActivity {
         }
 
         if (item.getItemId() == R.id.excursionsave) {
-            // Validate excursion date before saving
-            if (!isDateWithinVacationRange()) {
-                Toast.makeText(this, "Excursion date must be within the vacation period.", Toast.LENGTH_LONG).show();
-                return false;
-            }
-
-            Excursion excursion;
-            if (excursionID == -1) {
-                if (repository.getAllExcursions().isEmpty())
-                    excursionID = 1;
-                else
-                    excursionID = repository.getAllExcursions().get(repository.getAllExcursions().size() - 1).getExcursionID() + 1;
-
-                excursion = new Excursion(excursionID, editTitle.getText().toString(), editDate.getText().toString(), vacationID);
-                repository.insert(excursion);
-            } else {
-                excursion = new Excursion(excursionID, editTitle.getText().toString(), editDate.getText().toString(), vacationID);
-                repository.update(excursion);
-            }
-
-            Intent resultIntent = new Intent();
-            setResult(RESULT_OK, resultIntent);
-            this.finish();
+            saveExcursion();
             return true;
         }
 
         if (item.getItemId() == R.id.excursiondelete) {
-            new Thread(() -> {
-                repository.deleteExcursionById(excursionID);
-                runOnUiThread(() -> {
-                    Intent resultIntent = new Intent();
-                    setResult(RESULT_OK, resultIntent);
-                    this.finish();
-                });
-            }).start();
+            deleteExcursion();
             return true;
         }
 
-
-
         if (item.getItemId() == R.id.setexcursionalert) {
-            String dateFromScreen = editDate.getText().toString();
-            Date myDate = null;
-            try {
-                myDate = sdf.parse(dateFromScreen);
-                long trigger = myDate.getTime();
-                if (trigger <= System.currentTimeMillis()) {
-                    trigger += 1000 * 60;
-                }
-
-                Intent intent = new Intent(ExcursionDetails.this, MyReceiver.class);
-                intent.putExtra("key", "Reminder: " + editTitle.getText().toString() + " is scheduled for today.");
-                PendingIntent sender = PendingIntent.getBroadcast(
-                        ExcursionDetails.this,
-                        ++MainActivity.numAlert,
-                        intent,
-                        PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT
-                );
-
-
-                AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    if (alarmManager != null && alarmManager.canScheduleExactAlarms()) {
-                        alarmManager.setExact(AlarmManager.RTC_WAKEUP, trigger, sender);
-                        Toast.makeText(this, "Alarm set for: " + sdf.format(myDate), Toast.LENGTH_SHORT).show();
-                    } else {
-                        Intent permissionIntent = new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM);
-                        startActivity(permissionIntent);
-                        Toast.makeText(this, "Please grant exact alarm permission", Toast.LENGTH_LONG).show();
-                    }
-                } else {
-                    if (alarmManager != null) {
-                        alarmManager.setExact(AlarmManager.RTC_WAKEUP, trigger, sender);
-                        Toast.makeText(this, "Alarm set for: " + sdf.format(myDate), Toast.LENGTH_SHORT).show();
-                    }
-                }
-
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
+            setExcursionAlert();
             return true;
         }
 
 
         return super.onOptionsItemSelected(item);
     }
+
+    private void setExcursionAlert() {
+        String dateFromScreen = editDate.getText().toString();
+        Date myDate = null;
+        try {
+            myDate = sdf.parse(dateFromScreen);
+            long trigger = myDate.getTime();
+            if (trigger <= System.currentTimeMillis()) {
+                trigger += 1000 * 60;
+            }
+
+            Intent intent = new Intent(ExcursionDetails.this, MyReceiver.class);
+            intent.putExtra("key", "Reminder: " + editTitle.getText().toString() + " is scheduled for today.");
+            PendingIntent sender = PendingIntent.getBroadcast(
+                    ExcursionDetails.this,
+                    ++MainActivity.numAlert,
+                    intent,
+                    PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT
+            );
+
+
+            AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                if (alarmManager != null && alarmManager.canScheduleExactAlarms()) {
+                    alarmManager.setExact(AlarmManager.RTC_WAKEUP, trigger, sender);
+                    Toast.makeText(this, "Alarm set for: " + sdf.format(myDate), Toast.LENGTH_SHORT).show();
+                } else {
+                    Intent permissionIntent = new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM);
+                    startActivity(permissionIntent);
+                    Toast.makeText(this, "Please grant exact alarm permission", Toast.LENGTH_LONG).show();
+                }
+            } else {
+                if (alarmManager != null) {
+                    alarmManager.setExact(AlarmManager.RTC_WAKEUP, trigger, sender);
+                    Toast.makeText(this, "Alarm set for: " + sdf.format(myDate), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void deleteExcursion() {
+        new Thread(() -> {
+            repository.deleteExcursionById(excursionID);
+            runOnUiThread(() -> {
+                Intent resultIntent = new Intent();
+                setResult(RESULT_OK, resultIntent);
+                Toast.makeText(this, "Excursion Deleted", Toast.LENGTH_SHORT).show();
+                this.finish();
+            });
+        }).start();
+    }
+
+    private void saveExcursion() {
+
+        if (!isDateWithinVacationRange()) {
+            Toast.makeText(this, "Excursion date must be within the vacation period.", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        Excursion excursion;
+        if (excursionID == -1) {
+            if (repository.getAllExcursions().isEmpty())
+                excursionID = 1;
+            else
+                excursionID = repository.getAllExcursions().get(repository.getAllExcursions().size() - 1).getExcursionID() + 1;
+
+            excursion = new Excursion(excursionID, editTitle.getText().toString(), editDate.getText().toString(), vacationID);
+            repository.insert(excursion);
+            Toast.makeText(this, "Created new Excursion!", Toast.LENGTH_SHORT).show();
+        } else {
+            excursion = new Excursion(excursionID, editTitle.getText().toString(), editDate.getText().toString(), vacationID);
+            repository.update(excursion);
+            Toast.makeText(this, "Updated Excursion information.", Toast.LENGTH_SHORT).show();
+        }
+
+        Intent resultIntent = new Intent();
+        setResult(RESULT_OK, resultIntent);
+        this.finish();
+    }
+
     private boolean isDateWithinVacationRange() {
         String excursionDateStr = editDate.getText().toString();
         try {

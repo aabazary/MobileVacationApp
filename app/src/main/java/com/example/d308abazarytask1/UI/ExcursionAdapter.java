@@ -13,7 +13,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.d308abazarytask1.Entities.Excursion;
 import com.example.d308abazarytask1.R;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ExcursionAdapter extends RecyclerView.Adapter<ExcursionAdapter.ExcursionViewHolder> {
@@ -61,13 +60,13 @@ public class ExcursionAdapter extends RecyclerView.Adapter<ExcursionAdapter.Excu
         if(mExcursions!=null){
             Excursion current=mExcursions.get(position);
             String name=current.getTitle();
-            int prodID= current.getVacationID();
+            String excursionDate= current.getDate();
             holder.excursionItemView.setText(name);
-            holder.excursionItemView2.setText(Integer.toString(prodID));
+            holder.excursionItemView2.setText(excursionDate);
         }
         else{
             holder.excursionItemView.setText("No excursion name");
-            holder.excursionItemView.setText("No product id");
+            holder.excursionItemView.setText("No vacation id");
         }
     }
 

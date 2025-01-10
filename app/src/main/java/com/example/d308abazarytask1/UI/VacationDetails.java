@@ -150,58 +150,17 @@ public class VacationDetails extends AppCompatActivity {
 
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.vacationsave) {
-            Vacation vacation;
-            if (vacationId == -1) {
-                vacationId = repository.getmAllVacations().get(repository.getmAllVacations().size() - 1).getVacationID() + 1;
-                vacation = new Vacation(vacationId, editTitle.getText().toString(), editHotel.getText().toString(), editStartDate.getText().toString(), editEndDate.getText().toString());
-                repository.insert(vacation);
-
-            } else {
-                vacation = new Vacation(vacationId, editTitle.getText().toString(), editHotel.getText().toString(), editStartDate.getText().toString(), editEndDate.getText().toString());
-                repository.update(vacation);
-            }
-            this.finish();
-
+            saveVacation();
             return true;
-        }if (item.getItemId() == R.id.vacationdelete) {
-            List<Excursion> associatedExcursions = repository.getAssociatedExcursions(vacationId);
-
-            if (!associatedExcursions.isEmpty()) {
-
-                Toast.makeText(this, "Cannot delete vacation with associated excursions!", Toast.LENGTH_LONG).show();
-            } else {
-
-                ExecutorService executor = Executors.newSingleThreadExecutor();
-                executor.execute(() -> {
-                    repository.deleteVacationById(vacationId);
-                    runOnUiThread(() -> {
-                        Toast.makeText(this, "Vacation deleted successfully!", Toast.LENGTH_SHORT).show();
-                        this.finish();
-                    });
-                });
-            }
+        }
+        if (item.getItemId() == R.id.vacationdelete) {
+            deleteVacation();
             return true;
         }
         if (item.getItemId() == R.id.setvacationalert) {
-            try {
-                Date startDate = dateFormat.parse(editStartDate.getText().toString());
-                if (startDate != null) {
-                    setVacationAlert(startDate.getTime(), "Vacation '" + editTitle.getText().toString() + "' is starting today.");
-                }
-
-                Date endDate = dateFormat.parse(editEndDate.getText().toString());
-                if (endDate != null) {
-                    setVacationAlert(endDate.getTime(), "Vacation '" + editTitle.getText().toString() + "' is ending today.");
-                }
-
-                Toast.makeText(this, "Alerts set for start and end dates.", Toast.LENGTH_SHORT).show();
-            } catch (Exception e) {
-                Toast.makeText(this, "Failed to set alerts. Please check your dates.", Toast.LENGTH_SHORT).show();
-                e.printStackTrace();
-            }
+            createVacationAlert();
             return true;
         }
-
         if (item.getItemId() == R.id.sharevacation) {
             shareVacationDetails();
             return true;
@@ -213,10 +172,59 @@ public class VacationDetails extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void showMessage(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    private void createVacationAlert() {
+        try {
+            Date startDate = dateFormat.parse(editStartDate.getText().toString());
+            if (startDate != null) {
+                setVacationAlert(startDate.getTime(), "Vacation '" + editTitle.getText().toString() + "' is starting today.");
+            }
+
+            Date endDate = dateFormat.parse(editEndDate.getText().toString());
+            if (endDate != null) {
+                setVacationAlert(endDate.getTime(), "Vacation '" + editTitle.getText().toString() + "' is ending today.");
+            }
+
+            Toast.makeText(this, "Alerts set for start and end dates.", Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            Toast.makeText(this, "Failed to set alerts. Please check your dates.", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        }
     }
 
+    private void deleteVacation() {
+        List<Excursion> associatedExcursions = repository.getAssociatedExcursions(vacationId);
+
+        if (!associatedExcursions.isEmpty()) {
+
+            Toast.makeText(this, "Cannot delete vacation with associated excursions!", Toast.LENGTH_LONG).show();
+        } else {
+
+            ExecutorService executor = Executors.newSingleThreadExecutor();
+            executor.execute(() -> {
+                repository.deleteVacationById(vacationId);
+                runOnUiThread(() -> {
+                    Toast.makeText(this, "Vacation deleted successfully!", Toast.LENGTH_SHORT).show();
+                    this.finish();
+                });
+            });
+        }
+    }
+
+    private void saveVacation() {
+        Vacation vacation;
+        if (vacationId == -1) {
+            vacationId = repository.getmAllVacations().get(repository.getmAllVacations().size() - 1).getVacationID() + 1;
+            vacation = new Vacation(vacationId, editTitle.getText().toString(), editHotel.getText().toString(), editStartDate.getText().toString(), editEndDate.getText().toString());
+            repository.insert(vacation);
+            Toast.makeText(this, "Created new Vacation!", Toast.LENGTH_SHORT).show();
+
+        } else {
+            vacation = new Vacation(vacationId, editTitle.getText().toString(), editHotel.getText().toString(), editStartDate.getText().toString(), editEndDate.getText().toString());
+            repository.update(vacation);
+            Toast.makeText(this, "Updated Vacation Information.", Toast.LENGTH_SHORT).show();
+        }
+        this.finish();
+    }
 
     private void loadVacationDetails() {
         Vacation vacation = repository.getVacationById(vacationId);
@@ -240,6 +248,7 @@ public class VacationDetails extends AppCompatActivity {
             ((ExcursionAdapter) Objects.requireNonNull(recyclerView.getAdapter())).setExcursions(filteredExcursion);
         }
     }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -281,6 +290,7 @@ public class VacationDetails extends AppCompatActivity {
             }
         }
     }
+
     private void shareVacationDetails() {
         String details = String.format(
                 "Vacation Details:\n\n" +
