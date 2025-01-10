@@ -1,8 +1,13 @@
 package com.example.d308abazarytask1.UI;
 
+import android.app.AlarmManager;
 import android.app.DatePickerDialog;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -28,6 +33,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
@@ -175,6 +181,28 @@ public class VacationDetails extends AppCompatActivity {
             }
             return true;
         }
+        if (item.getItemId() == R.id.setvacationalert) {
+            try {
+                // Parse the start date
+                Date startDate = dateFormat.parse(editStartDate.getText().toString());
+                if (startDate != null) {
+                    setVacationAlert(startDate.getTime(), "Vacation '" + editTitle.getText().toString() + "' is starting today.");
+                }
+
+                // Parse the end date
+                Date endDate = dateFormat.parse(editEndDate.getText().toString());
+                if (endDate != null) {
+                    setVacationAlert(endDate.getTime(), "Vacation '" + editTitle.getText().toString() + "' is ending today.");
+                }
+
+                Toast.makeText(this, "Alerts set for start and end dates.", Toast.LENGTH_SHORT).show();
+            } catch (Exception e) {
+                Toast.makeText(this, "Failed to set alerts. Please check your dates.", Toast.LENGTH_SHORT).show();
+                e.printStackTrace();
+            }
+            return true;
+        }
+
 
         if (item.getItemId() == android.R.id.home) {
             finish();
@@ -221,6 +249,36 @@ public class VacationDetails extends AppCompatActivity {
         excursionAdapter.setExcursions(updatedExcursions);
     }
 
+    private void setVacationAlert(long triggerTime, String message) {
+        if (triggerTime <= System.currentTimeMillis()) {
+            triggerTime += 1000 * 60; // Set the alert for 1 minute from now if the time has passed
+        }
+
+        Intent intent = new Intent(VacationDetails.this, MyReceiver.class);
+        intent.putExtra("key", message);
+        PendingIntent sender = PendingIntent.getBroadcast(
+                VacationDetails.this,
+                ++MainActivity.numAlert,
+                intent,
+                PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT
+        );
+
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if (alarmManager != null && alarmManager.canScheduleExactAlarms()) {
+                alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerTime, sender);
+            } else {
+                Intent permissionIntent = new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM);
+                startActivity(permissionIntent);
+                Toast.makeText(this, "Please grant exact alarm permission", Toast.LENGTH_LONG).show();
+            }
+        } else {
+            if (alarmManager != null) {
+                alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerTime, sender);
+            }
+        }
+    }
 
 
 }
