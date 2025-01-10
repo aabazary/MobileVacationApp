@@ -10,4 +10,7 @@
     <item android:title="Set Alert"
         android:orderInCategory="100"
         android:id="@+id/setvacationalert"/>
+    <item android:title="Share Vacation"
+        android:id="@+id/sharevacation"
+        />
 </menu>

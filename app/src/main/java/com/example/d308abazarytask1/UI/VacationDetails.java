@@ -36,6 +36,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -55,7 +56,7 @@ public class VacationDetails extends AppCompatActivity {
     private RecyclerView recyclerView;
     private final Calendar calendarStart = Calendar.getInstance();
     private final Calendar calendarEnd = Calendar.getInstance();
-    private SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
 
     private ActivityResultLauncher<Intent> excursionLauncher;
     private ExcursionAdapter excursionAdapter;
@@ -183,13 +184,11 @@ public class VacationDetails extends AppCompatActivity {
         }
         if (item.getItemId() == R.id.setvacationalert) {
             try {
-                // Parse the start date
                 Date startDate = dateFormat.parse(editStartDate.getText().toString());
                 if (startDate != null) {
                     setVacationAlert(startDate.getTime(), "Vacation '" + editTitle.getText().toString() + "' is starting today.");
                 }
 
-                // Parse the end date
                 Date endDate = dateFormat.parse(editEndDate.getText().toString());
                 if (endDate != null) {
                     setVacationAlert(endDate.getTime(), "Vacation '" + editTitle.getText().toString() + "' is ending today.");
@@ -203,7 +202,10 @@ public class VacationDetails extends AppCompatActivity {
             return true;
         }
 
-
+        if (item.getItemId() == R.id.sharevacation) {
+            shareVacationDetails();
+            return true;
+        }
         if (item.getItemId() == android.R.id.home) {
             finish();
             return true;
@@ -235,7 +237,7 @@ public class VacationDetails extends AppCompatActivity {
             for (Excursion e : repository.getAllExcursions()) {
                 if (e.getVacationID() == vacationId) filteredExcursion.add(e);
             }
-            ((ExcursionAdapter) recyclerView.getAdapter()).setExcursions(filteredExcursion);
+            ((ExcursionAdapter) Objects.requireNonNull(recyclerView.getAdapter())).setExcursions(filteredExcursion);
         }
     }
     @Override
@@ -251,7 +253,7 @@ public class VacationDetails extends AppCompatActivity {
 
     private void setVacationAlert(long triggerTime, String message) {
         if (triggerTime <= System.currentTimeMillis()) {
-            triggerTime += 1000 * 60; // Set the alert for 1 minute from now if the time has passed
+            triggerTime += 1000 * 60;
         }
 
         Intent intent = new Intent(VacationDetails.this, MyReceiver.class);
@@ -279,6 +281,27 @@ public class VacationDetails extends AppCompatActivity {
             }
         }
     }
+    private void shareVacationDetails() {
+        String details = String.format(
+                "Vacation Details:\n\n" +
+                        "Title: %s\n" +
+                        "Hotel: %s\n" +
+                        "Start Date: %s\n" +
+                        "End Date: %s\n\n" +
+                        "This is going to be an awesome vacation!",
+                editTitle.getText().toString(),
+                editHotel.getText().toString(),
+                editStartDate.getText().toString(),
+                editEndDate.getText().toString()
+        );
 
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_TEXT, details);
+
+        shareIntent.putExtra(Intent.EXTRA_SUBJECT, "My Vacation Details");
+
+        startActivity(Intent.createChooser(shareIntent, "Share Vacation Details"));
+    }
 
 }
