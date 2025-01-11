@@ -11,6 +11,7 @@
         android:layout_height="wrap_content"
         android:text="TextView"
         android:paddingTop="10dp"
+        android:textSize="16sp"
         tools:layout_editor_absoluteX="148dp"
         tools:layout_editor_absoluteY="345dp"
         app:layout_constraintLeft_toLeftOf="parent"
