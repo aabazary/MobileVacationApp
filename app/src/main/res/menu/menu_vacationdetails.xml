@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:title="Save Vacation"
+        android:id="@+id/vacationsave"
+        />
+    <item android:title="Delete Vacation"
+        android:id="@+id/vacationdelete"
+        />
+    <item android:title="Set Alert"
+        android:orderInCategory="100"
+        android:id="@+id/setvacationalert"/>
+    <item android:title="Share Vacation"
+        android:id="@+id/sharevacation"
+        />
+</menu>

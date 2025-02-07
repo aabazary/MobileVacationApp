@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">D308AbazaryTask1</string>
+    <string name="first">first</string>
+    <string name="second" />
+    <string name="vacation_name">vacation name</string>
+    <string name="hotel_name">hotel name</string>
+    <string name="vacation">Vacation:</string>
+    <string name="title">Title</string>
+    <string name="channel_name" />
+    <string name="channel_description" />
+    <string name="calendar_icon">Calendar Icon</string>
+    <string name="select_date">Select Date</string>
+</resources>
